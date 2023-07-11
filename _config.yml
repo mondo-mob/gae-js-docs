@@ -2,7 +2,6 @@ title: Just the Docs Template
 description: A starter template for a Jeykll site using the Just the Docs theme!
 theme: just-the-docs
 
-# url: https://YOUR-USERNAME.github.io/YOUR-SITE-NAME
-
 aux_links:
-  gae-js repository: https://github.com/mondo-mob/gae-js
+  "gae-js on GitHub":
+    - "//github.com/mondo-mob/gae-js"
