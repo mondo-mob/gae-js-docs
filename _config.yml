@@ -4,5 +4,5 @@ theme: just-the-docs
 
 # url: https://YOUR-USERNAME.github.io/YOUR-SITE-NAME
 
-# aux_links:
-  # Template Repository: https://github.com/just-the-docs/just-the-docs-template
+aux_links:
+  gae-js repository: https://github.com/mondo-mob/gae-js
