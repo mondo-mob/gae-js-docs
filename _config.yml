@@ -5,3 +5,6 @@ theme: just-the-docs
 aux_links:
   "gae-js on GitHub":
     - "//github.com/mondo-mob/gae-js"
+
+aux_links_new_tab: true
+color_scheme: dark
