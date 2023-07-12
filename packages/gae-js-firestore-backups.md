@@ -1,3 +1,10 @@
+---
+layout: default
+title: Firestore Backups
+parent: Packages
+nav_order: 3
+---
+
 # GAE JS FIRESTORE BACKUPS
 
 Module to perform scheduled Firestore exports in your app.

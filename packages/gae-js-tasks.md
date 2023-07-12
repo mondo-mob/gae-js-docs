@@ -1,3 +1,10 @@
+---
+layout: default
+title: Tasks
+parent: Packages
+nav_order: 6
+---
+
 # GAE JS TASKS
 
 Use Cloud Tasks to call task handler endpoints in your app.

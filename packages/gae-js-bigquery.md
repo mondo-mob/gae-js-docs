@@ -1,3 +1,10 @@
+---
+layout: default
+title: Big Query
+parent: Packages
+nav_order: 7
+---
+
 # GAE JS BIGQUERY
 
 Simplifies BigQuery client initialisation and common BigQuery operations.

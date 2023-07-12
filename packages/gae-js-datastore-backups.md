@@ -1,3 +1,10 @@
+---
+layout: default
+title: Datastore Backups
+parent: Packages
+nav_order: 4
+---
+
 # GAE JS DATASTORE BACKUPS
 
 Module to perform scheduled Datastore exports in your app.

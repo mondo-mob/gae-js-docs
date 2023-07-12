@@ -1,3 +1,10 @@
+---
+layout: default
+title: Datastore
+parent: Packages
+nav_order: 3
+---
+
 # GAE JS DATASTORE
 
 Use Cloud Datastore (or Firestore in Datastore Mode) as your app db including [DataLoader](https://github.com/graphql/dataloader) implementation GraphQL

@@ -1,3 +1,10 @@
+---
+layout: default
+title: Migrations
+parent: Packages
+nav_order: 10
+---
+
 # GAE JS MIGRATIONS
 
 Setup and Run migrations, with state stored in firestore and a mutex lock to ensure only one is run at a time

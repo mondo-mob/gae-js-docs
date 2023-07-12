@@ -1,3 +1,10 @@
+---
+layout: default
+title: Firebase Authentication
+parent: Packages
+nav_order: 9
+---
+
 # GAE JS FIREBASE AUTH
 
 Use Firebase Auth to authenticate your users

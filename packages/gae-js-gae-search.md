@@ -1,4 +1,11 @@
-# GAE JS STORAGE
+---
+layout: default
+title: Search
+parent: Packages
+nav_order: 11
+---
+
+# GAE JS SEARCH
 
 SearchService implementation that uses the GAE Search API via the
 [https://github.com/mondo-mob/gae-search-service](https://github.com/mondo-mob/gae-search-service) GAE Search Service proxy.

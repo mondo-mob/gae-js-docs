@@ -1,3 +1,10 @@
+---
+layout: default
+title: Firestore
+parent: Packages
+nav_order: 2
+---
+
 # GAE JS FIRESTORE
 
 Use Firestore in Native mode as your app db including [DataLoader](https://github.com/graphql/dataloader) implementation GraphQL

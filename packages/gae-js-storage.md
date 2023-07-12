@@ -1,3 +1,10 @@
+---
+layout: default
+title: Storage
+parent: Packages
+nav_order: 5
+---
+
 # GAE JS STORAGE
 
 Use Cloud Storage in your app.
