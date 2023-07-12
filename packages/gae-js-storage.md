@@ -2,7 +2,7 @@
 layout: default
 title: Storage
 parent: Packages
-nav_order: 5
+nav_order: 6
 ---
 
 # GAE JS STORAGE

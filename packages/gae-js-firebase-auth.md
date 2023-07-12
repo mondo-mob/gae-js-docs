@@ -2,7 +2,7 @@
 layout: default
 title: Firebase Authentication
 parent: Packages
-nav_order: 9
+nav_order: 10
 ---
 
 # GAE JS FIREBASE AUTH

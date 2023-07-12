@@ -2,7 +2,7 @@
 layout: default
 title: Google Authentication
 parent: Packages
-nav_order: 8
+nav_order: 9
 ---
 
 # GAE JS GOOGLE AUTH

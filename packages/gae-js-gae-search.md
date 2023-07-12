@@ -2,7 +2,7 @@
 layout: default
 title: Search
 parent: Packages
-nav_order: 11
+nav_order: 12
 ---
 
 # GAE JS SEARCH
