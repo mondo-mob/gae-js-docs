@@ -1,171 +1,213 @@
-# just-the-docs-template
+# GAE JS
 
-This is a *bare-minimum* template to create a [Jekyll] site that:
+Simplify building NodeJS applications on Google App Engine (GAE)
 
-- uses the [Just the Docs] theme;
-- can be built and published on [GitHub Pages];
-- can be built and previewed locally, and published on other platforms.
+## Installation
 
-More specifically, the created site:
+Install the core component:
+```sh
+npm install @mondomob/gae-js-core
+```
 
-- uses a gem-based approach, i.e. uses a `Gemfile` and loads the `just-the-docs` gem;
-- uses the [GitHub Pages / Actions workflow] to build and publish the site on GitHub Pages.
+Then depending on your use case install the components you want to use. e.g.
 
-To get started with creating a site, just click "[use this template]"!
+```sh
+npm install @mondomob/gae-js-firestore
+npm install @mondomob/gae-js-firebase-auth
+```
 
-If you want to maintain your docs in the `docs` directory of an existing project repo, see [Hosting your docs from an existing project repo](#hosting-your-docs-from-an-existing-project-repo).
+## Usage
+Here's an example Express app configuration that uses the core library as well as both Firestore and Firebase Auth.
 
-After completing the creation of your new site on GitHub, update it as needed:
+```
+// Create a request aware logger
+const logger = createLogger("gae-js-demo");
 
-## Replace the content of the template pages
+// Create your express app as normal
+const app = express();
 
-Update the following files to your own content:
+// Add the core gae-js logging and async storage middlewares
+app.use(gaeJsApp);
 
-- `index.md` (your new home page)
-- `README.md` (information for those who access your site repo on GitHub)
+// Add firestore support (with dataloader for graphql support)
+firestoreProvider.init();
+app.use(firestoreLoader());
 
-## Changing the version of the theme and/or Jekyll
+// Add firebase auth support
+const firebaseAdmin = admin.initializeApp({ projectId: <my-gcp-project-id> });
+app.use(verifyFirebaseUser(firebaseAdmin));
 
-Simply edit the relevant line(s) in the `Gemfile`.
+// Add handlers as required
+app.get(
+  "/demo-items",
+  requiresUser(),                   // <-- Util middleware that enforces a valid user
+  asyncMiddleware(async (req, res) => { // <-- Util middleware that lets you write async handlers
+    const repository = new FirestoreRepository<DemoItem>("demo-items");
+    logger.info("listing demo-items from firestore");
+    const list = await repository.query();
+    res.send(`Hello firestore ${JSON.stringify(list)}`);
+  })
+);
 
-## Adding a plugin
+app.use((err, req, res, next) => {
+  // your error handling logic goes here
+  logger.error("Error", err);
+  res.status(500).send("Bad stuff happened")
+});
+```
 
-The Just the Docs theme automatically includes the [`jekyll-seo-tag`] plugin.
+## Background
 
-To add an extra plugin, you need to add it in the `Gemfile` *and* in `_config.yml`. For example, to add [`jekyll-default-layout`]:
+This library is mostly a deconstructed version of what is offered by
+[gae-node-nestjs](https://github.com/mondo-mob/gae-node-nestjs) and
+[generator-gae-node-nestjs](https://www.npmjs.com/package/@mondomob/generator-gae-node-nestjs) libraries.
 
-- Add the following to your site's `Gemfile`:
+You can do a lot with these libs but they can be difficult to customise. For example the data layer
+is heavily tied to using Firestore in Datastore Mode and assumes you want to use graphql. It's not
+a great fit if you only want to build a simple API with Firestore Native db.
 
-  ```ruby
-  gem "jekyll-default-layout"
-  ```
+So the intention with this library was to offer a similar feature set but in a minimal way.
+i.e. almost everything is optional.
 
-- And add the following to your site's `_config.yml`:
+## Components
 
-  ```yaml
-  plugins:
-    - jekyll-default-layout
-  ```
+### gae-js-core ([documentation](packages/gae-js-core.md))
 
-Note: If you are using a Jekyll version less than 3.5.0, use the `gems` key instead of `plugins`.
+#### Async Local Storage Support
 
-## Publishing your site on GitHub Pages
+This library relies on Async Local Storage for passing data around. Yes it's still an Experimental NodeJS
+API but it's really useful and the general push is to mark it as stable soon (https://github.com/nodejs/node/issues/35286).
 
-1.  If your created site is `YOUR-USERNAME/YOUR-SITE-NAME`, update `_config.yml` to:
+#### Logging
+Create request aware Bunyan loggers for Cloud Logging.
+All of your logs from a single request will be correlated together in Cloud Logging.
 
-    ```yaml
-    title: YOUR TITLE
-    description: YOUR DESCRIPTION
-    theme: just-the-docs
+#### Configuration
+Extendable, typed and environment aware configuration loader
 
-    url: https://YOUR-USERNAME.github.io/YOUR-SITE-NAME
+#### Configuration Secrets
+Seamlessly load secrets stored in "Google Cloud Secret Manager"
 
-    aux_links: # remove if you don't want this link to appear on your pages
-      Template Repository: https://github.com/YOUR-USERNAME/YOUR-SITE-NAME
-    ```
+#### Serving static resources with etags
+Serve static assets with strong etags to workaround GAE build wiping out your file timestamps
 
-2.  Push your updated `_config.yml` to your site on GitHub.
+#### Authentication/Authorization
+Middleware to protect your routes to authenticated users or specific user roles
 
-3.  In your newly created repo on GitHub:
-    - go to the `Settings` tab -> `Pages` -> `Build and deployment`, then select `Source`: `GitHub Actions`.
-    - if there were any failed Actions, go to the `Actions` tab and click on `Re-run jobs`.
+#### Search
+Framework for adding search capability to your data layer
 
-## Building and previewing your site locally
+#### Other stuff
+A few other (hopefully) useful things to help you along the way and stop reinventing the wheel
 
-Assuming [Jekyll] and [Bundler] are installed on your computer:
+### gae-js-bigquery ([documentation](packages/gae-js-bigquery.md))
+#### Use BigQuery in your app
+Simplifies client initialisation and common BQ tasks
 
-1.  Change your working directory to the root directory of your site.
+### gae-js-datastore ([documentation](packages/gae-js-datastore.md))
 
-2.  Run `bundle install`.
+#### Use Cloud Datastore (or Firestore in Datastore mode)
+Access your collections through typed repositories, backed by a DataLoader implementation to support GraphQL.
 
-3.  Run `bundle exec jekyll serve` to build your site and preview it at `localhost:4000`.
+#### Simple transaction support
+Use annotations on your methods to make them transactional
 
-    The built site is stored in the directory `_site`.
+### gae-js-datastore-backups ([documentation](packages/gae-js-datastore-backups.md))
+#### Automate Datastore Exports
+Run/schedule full or partial exports of Datastore into Google Cloud Storage
+#### Import into BigQuery
+Schedule Extract and Load jobs to export from Datastore into BigQuery
 
-## Publishing your built site on a different platform
+### gae-js-firebase-auth ([documentation](packages/gae-js-firebase-auth.md))
+#### Use Firebase Auth to authenticate your users
+Middleware to verify Firebase Auth tokens and set user into the request
 
-Just upload all the files in the directory `_site`.
+### gae-js-firestore ([documentation](packages/gae-js-firestore.md))
 
-## Customization
+#### Use Firestore in Native mode
+Access your collections through typed repositories, backed by a DataLoader implementation to support GraphQL.
 
-You're free to customize sites that you create with this template, however you like!
+#### Simple transaction support
+Use annotations on your methods to make them transactional
 
-[Browse our documentation][Just the Docs] to learn more about how to use this theme.
+### gae-js-firestore-backups ([documentation](packages/gae-js-firestore-backups.md))
+#### Automate Firestore Exports
+Run/schedule full or partial exports of Firestore into Google Cloud Storage
+#### Import into BigQuery
+Schedule Extract and Load jobs to export from Firestore into BigQuery
 
-## Hosting your docs from an existing project repo
+### gae-js-gae-search ([documentation](packages/gae-js-gae-search.md))
+#### Search service implementation for GAE Search API
+Use GAE Search API to index and search your repository data
 
-You might want to maintain your docs in an existing project repo. Instead of creating a new repo using the [just-the-docs template](https://github.com/just-the-docs/just-the-docs-template), you can copy the template files into your existing repo and configure the template's Github Actions workflow to build from a `docs` directory. You can clone the template to your local machine or download the `.zip` file to access the files.
+### gae-js-google-auth ([documentation](./packages/gae-js-google-auth.md))
+#### Google Auth utilities
+Utilities extending on [Google Auth Library](https://github.com/googleapis/google-auth-library-nodejs#readme), such as middleware to validate Google JWT.
 
-### Copy the template files
+### gae-js-migrations ([documentation](./packages/gae-js-migrations.md))
+#### Run migrations
+Bootstrap migrations to be run when server starts or create an endpoint to trigger them. Status of migrations and mutex lock is managed with Firestore.
 
-1.  Create a `.github/workflows` directory at your project root if your repo doesn't already have one. Copy the `pages.yml` file into this directory. GitHub Actions searches this directory for workflow files.
+### gae-js-storage ([documentation](./packages/gae-js-storage.md))
+#### Use Cloud Storage in your app
+Simplifies client initialisation and common storage tasks
 
-2.  Create a `docs` directory at your project root and copy all remaining template files into this directory.
+### gae-js-tasks ([documentation](./packages/gae-js-tasks.md))
+#### Use Cloud Tasks in your app
+Simplifies client initialisation and common task operations
 
-### Modify the GitHub Actions workflow
 
-The GitHub Actions workflow that builds and deploys your site to Github Pages is defined by the `pages.yml` file. You'll need to edit this file to that so that your build and deploy steps look to your `docs` directory, rather than the project root.
 
-1.  Set the default `working-directory` param for the build job.
+## Contributing
 
-    ```yaml
-    build:
-      runs-on: ubuntu-latest
-      defaults:
-        run:
-          working-directory: docs
-    ```
+This is a mono-repo using npm workspaces.
+Publishing is done using Atlassian Changesets (https://github.com/changesets/changesets).
+This helps be consistent with versioning and auto-generates changelogs.
 
-2.  Set the `working-directory` param for the Setup Ruby step.
+Here's the basic flow:
 
-    ```yaml
-    - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.1'
-          bundler-cache: true
-          cache-version: 0
-          working-directory: '${{ github.workspace }}/docs'
-    ```
+1. Create one or more changesets
 
-3.  Set the path param for the Upload artifact step:
+- Once you've made your changes, create a changeset. You can create more than one changeset for a single version.
 
-    ```yaml
-    - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: "docs/_site/"
-    ```
+```
+npx changeset
+```
 
-4.  Modify the trigger so that only changes within the `docs` directory start the workflow. Otherwise, every change to your project (even those that don't affect the docs) would trigger a new site build and deploy.
+- From the cli tool, choose which packages to update and if major/minor/patch update
+- Enter summary for changes
+- Review and commit files
 
-    ```yaml
-    on:
-      push:
-        branches:
-          - "main"
-        paths:
-          - "docs/**"
-    ```
+2. Update package versions
 
-## Licensing and Attribution
+- Based on the changeset configuration - this will automatically version the packages.
 
-This repository is licensed under the [MIT License]. You are generally free to reuse or extend upon this code as you see fit; just include the original copy of the license (which is preserved when you "make a template"). While it's not necessary, we'd love to hear from you if you do use this template, and how we can improve it for future use!
+```
+npx changeset version
+```
 
-The deployment GitHub Actions workflow is heavily based on GitHub's mixed-party [starter workflows]. A copy of their MIT License is available in [actions/starter-workflows].
+- Commit changes
 
-----
+3. Build and publish
 
-[^1]: [It can take up to 10 minutes for changes to your site to publish after you push the changes to GitHub](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll#creating-your-site).
+Would be nice if this was done from CI but for now we do this locally.
 
-[Jekyll]: https://jekyllrb.com
-[Just the Docs]: https://just-the-docs.github.io/just-the-docs/
-[GitHub Pages]: https://docs.github.com/en/pages
-[GitHub Pages / Actions workflow]: https://github.blog/changelog/2022-07-27-github-pages-custom-github-actions-workflows-beta/
-[Bundler]: https://bundler.io
-[use this template]: https://github.com/just-the-docs/just-the-docs-template/generate
-[`jekyll-default-layout`]: https://github.com/benbalter/jekyll-default-layout
-[`jekyll-seo-tag`]: https://jekyll.github.io/jekyll-seo-tag
-[MIT License]: https://en.wikipedia.org/wiki/MIT_License
-[starter workflows]: https://github.com/actions/starter-workflows/blob/main/pages/jekyll.yml
-[actions/starter-workflows]: https://github.com/actions/starter-workflows/blob/main/LICENSE
+- Check you're running a suitable version of node/npm. If not switch and clear out old node_modules.
+- Build and publish
+
+```
+npm run publish-libs
+```
+
+### Adding new packages
+
+There's nothing automated to do this. Essentially you just need to add a new package to `/packages` folder but
+these steps should save some time:
+
+- Create new folder in `/packages`. e.g. `/packages/gae-js-new-thing`
+- Copy `package.json`, `tsconfig.json`, `tsconfig.prod.json`, `jest.config.json` from one of the existing packages
+- Update `package.json` to match desired name, version, dependencies, etc
+- Update `tsconfig.json` to match desired project references.
+- Create file src/index.ts and export some constant
+- Run `npm install` from root folder
+- Run `npm run build` from project folder
