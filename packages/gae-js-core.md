@@ -1,3 +1,10 @@
+---
+layout: default
+title: Core
+parent: Packages
+nav_order: 1
+---
+
 # GAE JS CORE
 
 The core stuff needed for most apps.
