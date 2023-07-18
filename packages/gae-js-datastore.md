@@ -73,6 +73,18 @@ const item = await repository.get("id123");
 
 // Query items
 const list = await demoItemsRepository.query();
+
+// Reindex (re-save) all items in batches (200 by default)
+const totalCount = await repository.reindexInBatches();
+const totalCount = await repository.reindexInBatches({ batchSize: 1000 });
+// Reindex (re-save) all items in batches, with a transformation per item
+const totalCount = await repository.reindexInBatches({ transform: ({id, name}) => ({ id, name: `UPDATED ${name}` })});
+
+// Reindex (re-save) all items at once (WARNING: Small datasets only)
+const items = await repository.reindex();
+// Reindex (re-save) all items at once, with a transformation per item (WARNING: Small datasets only)
+const items = await repository.reindex(({id, name}) => ({ id, name: `UPDATED ${name}` }));
+
 ```
 
 ### @Transactional
