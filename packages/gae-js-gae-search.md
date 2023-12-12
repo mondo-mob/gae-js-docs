@@ -16,7 +16,7 @@ and then search against your stored entities.
 ## Installation
 
 ```sh
-npm install @mondomob/gae-js-storage
+npm install @mondomob/gae-js-search
 ```
 
 ## Components
