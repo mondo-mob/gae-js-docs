@@ -7,6 +7,14 @@ nav_order: 9
 
 # GAE JS GOOGLE AUTH
 
+> **Replaced with [MondoKit](https://mondokit.dev)**: We are excited to announce the next generation of GAE JS. Our `ESM-only` set of libraries, migrated from GAE JS and rebranded as [MondoKit](https://mondokit.dev).
+>
+> You can see a [Migration guide from GAE JS](https://mondokit.dev/migration-from-gae-js) to help you move to the new libraries. Many changes are simple search/replace.
+>
+> We will continue to add minor fixes and patches to this library as required.
+>
+> Find  [MondoKit on GitHub](https://github.com/mondo-mob/mondokit).
+
 Utilities extending on [Google Auth Library](https://github.com/googleapis/google-auth-library-nodejs#readme), such as middleware to validate Google JWT.
 
 ## Installation
